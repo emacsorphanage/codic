@@ -20,4 +20,5 @@ This package Emacs port of [Codic.vim](https://github.com/koron/codic-vim)
 
 #### `M-x codic keyword`
 
-Search keyword from Codic dictionary.
+Search keyword from Codic dictionary. If `keyword` starts with English alphabet,
+`codic.el` assumes keyword is English.
