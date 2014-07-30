@@ -101,9 +101,10 @@
              do
              (progn
                (cl-loop for value in values
-                        when (funcall mapfn value)
+                        for word-desc = (funcall mapfn value)
+                        when word-desc
                         do
-                        (push it mapped-values))
+                        (push word-desc mapped-values))
                (puthash label (list :id id :label label :values mapped-values)
                         dict)))
     dict))
