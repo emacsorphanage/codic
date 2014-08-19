@@ -1,4 +1,4 @@
-;;; codic.el --- Codic for Emacs
+;;; codic.el --- Search Codic (codic.jp) naming dictionaries
 
 ;; Copyright (C) 2014 by Syohei YOSHIDA
 
@@ -67,7 +67,8 @@
              for start = (1+ (point))
              do
              (progn
-               (while (re-search-forward "$" (line-end-position) t)
+               (while (re-search-forward "
+$" (line-end-position) t)
                  (forward-line 1))
                (let* ((line (buffer-substring-no-properties
                              start (1- (line-end-position))))
