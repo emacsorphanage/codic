@@ -19,6 +19,15 @@ This package Emacs port of [Codic.vim](https://github.com/koron/codic-vim)
 ![codic-enaligh](image/codic-english.gif)
 
 
+## Installation
+
+You can install `codic.el` from [MELPA](http://melpa.milkbox.net/) with package.el.
+If you use [Cask](https://github.com/cask/cask), put following code to your Cask file.
+
+```lisp
+(depends-on "codic")
+```
+
 ## Command
 
 #### `M-x codic keyword`
