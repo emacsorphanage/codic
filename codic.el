@@ -67,7 +67,7 @@
              for start = (1+ (point))
              do
              (progn
-               (while (re-search-forward "$" (line-end-position) t)
+               (while (re-search-forward "\015$" (line-end-position) t)
                  (forward-line 1))
                (let* ((line (buffer-substring-no-properties
                              start (1- (line-end-position))))
