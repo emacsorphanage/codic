@@ -86,7 +86,8 @@
       (should entry)
       (should (string= (plist-get entry :id) "40927"))
       (should (string= (plist-get entry :label) "editor") )
-      (should (= (length (plist-get entry :values)) 2)))))
+      (should (= (length (plist-get entry :values)) 2))
+      (should (assoc-default 'english codic--dictionary-cache)))))
 
 (ert-deftest load-naming-dictionary ()
   "Load Naming dictionary"
@@ -94,7 +95,8 @@
     (let ((entry (gethash "エディター" dictionary)))
       (should entry)
       (let ((val (plist-get entry :values)))
-        (should (string= (plist-get (car val) :word) "editor"))))))
+        (should (string= (plist-get (car val) :word) "editor"))
+        (should (assoc-default 'naming codic--dictionary-cache))))))
 
 (ert-deftest sort-by-score ()
   "Sort by score."

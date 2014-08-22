@@ -48,6 +48,8 @@
                (file-name-directory load-file-name)
              default-directory) "dict")))
 
+(defvar codic--dictionary-cache nil)
+
 (defsubst codic--entry-dictionary-path (type)
   (concat codic--dictionary-path
           (symbol-name type)
@@ -93,28 +95,30 @@
     (naming (lambda (x) (list :word (nth 2 x) :desc (nth 3 x))))))
 
 (defun codic--load-dictionary (type)
-  (let* ((mapfn (codic--map-function type))
-         (entry-dict (codic--entry-dictionary-path type))
-         (trans-dict (codic--translation-dictionary-path type))
-         (entries (codic--load-csv entry-dict))
-         (data (codic--to-hash (codic--load-csv trans-dict)))
-         (dict (make-hash-table :test 'equal)))
-    (cl-loop for entry in entries
-             for id = (cl-first entry)
-             for label = (cl-second entry)
-             for values = (gethash id data)
-             for mapped-values = nil
-             when values
-             do
-             (progn
-               (cl-loop for value in values
-                        for word-desc = (funcall mapfn value)
-                        when word-desc
-                        do
-                        (push word-desc mapped-values))
-               (puthash label (list :id id :label label :values mapped-values)
-                        dict)))
-    dict))
+  (or (assoc-default type codic--dictionary-cache)
+      (let* ((mapfn (codic--map-function type))
+             (entry-dict (codic--entry-dictionary-path type))
+             (trans-dict (codic--translation-dictionary-path type))
+             (entries (codic--load-csv entry-dict))
+             (data (codic--to-hash (codic--load-csv trans-dict)))
+             (dict (make-hash-table :test 'equal)))
+        (cl-loop for entry in entries
+                 for id = (cl-first entry)
+                 for label = (cl-second entry)
+                 for values = (gethash id data)
+                 for mapped-values = nil
+                 when values
+                 do
+                 (progn
+                   (cl-loop for value in values
+                            for word-desc = (funcall mapfn value)
+                            when word-desc
+                            do
+                            (push word-desc mapped-values))
+                   (puthash label (list :id id :label label :values mapped-values)
+                            dict)))
+        (add-to-list 'codic--dictionary-cache (cons type dict))
+        dict)))
 
 (defun codic--sort-by-score (a b)
   (let ((delta (- (plist-get a :score) (plist-get b :score))))
