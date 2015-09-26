@@ -30,12 +30,12 @@ You can install `codic` with the following command.
 
 ## Command
 
-#### `M-x codic keyword`
+#### M-x codic `(codic keyword &optional limit)`
 
 Search keyword from Codic dictionary.
 
 
-#### `M-x codic-translate`
+#### M-x codic-translate `(codic-translate keyword)`
 
 Search keyword by Codic translate Web API.
 
