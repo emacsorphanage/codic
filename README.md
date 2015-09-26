@@ -44,8 +44,7 @@ Search keyword by Codic translate Web API.
 
 #### `codic-api-token`
 
-API token of [codic.jp](https://codic.jp/docs/api). If this value is non-nil,
-`M-x codic` uses Web API instead of local dictonaries.
+API token of [codic.jp](https://codic.jp/docs/api).
 
 
 [melpa-link]: https://melpa.org/#/codic
