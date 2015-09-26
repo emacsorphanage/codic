@@ -1,11 +1,11 @@
-;;; codic.el --- Search Codic (codic.jp) naming dictionaries
+;;; codic.el --- Search Codic (codic.jp) naming dictionaries -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2014 by Syohei YOSHIDA
+;; Copyright (C) 2015 by Syohei YOSHIDA
 
 ;; Author: Syohei YOSHIDA <syohex@gmail.com>
 ;; URL: https://github.com/syohex/emacs-codic
 ;; Version: 0.02
-;; Package-Requires: ((cl-lib "0.5"))
+;; Package-Requires: ((emacs "24") (cl-lib "0.5"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,11 +31,21 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (defvar url-http-end-of-headers))
+
 (require 'cl-lib)
+(require 'url)
+(require 'json)
 
 (defgroup codic nil
   "`codic' for Emacs."
   :group 'applications)
+
+(defcustom codic-api-token nil
+  "API token"
+  :type '(choice (const nil) string)
+  :group 'codic)
 
 (defcustom codic-limit 10
   "Limit number of candidates."
@@ -49,6 +59,7 @@
              default-directory) "dict")))
 
 (defvar codic--dictionary-cache nil)
+(defvar codic--history nil)
 
 (defsubst codic--entry-dictionary-path (type)
   (concat codic--dictionary-path
@@ -137,8 +148,6 @@
                              for item in sorted
                              collect (plist-get item :item)))))
 
-(defvar codic--history nil)
-
 (defsubst codic--dictionary-type (keyword)
   (if (string-match "\\`[a-zA-Z_]+\\'" keyword)
       'english
@@ -171,15 +180,68 @@
     (setq buffer-read-only t)
     (pop-to-buffer (current-buffer))))
 
+(defun codic--render-response (&rest _unused)
+  (let* ((json (json-read-from-string
+                (buffer-substring-no-properties url-http-end-of-headers (point-max))))
+         (res (aref json 0)))
+    (with-current-buffer (get-buffer-create "*Codic Result*")
+      (setq buffer-read-only nil)
+      (erase-buffer)
+      (let ((orig (assoc-default 'text res))
+            (orig-translated (assoc-default 'translated_text res))
+            (words (assoc-default 'words res)))
+        (unless (= (length words) 1)
+          (insert (format "[%s]\n" orig))
+          (insert (format " * %s\n" orig-translated))
+          (insert "\n"))
+        (cl-loop for word across words
+                 for text = (assoc-default 'text word)
+                 for candidates = (assoc-default 'candidates word)
+                 do
+                 (progn
+                   (insert (format "[%s]\n" text))
+                   (cl-loop for candidate across candidates
+                            for w = (assoc-default 'text candidate)
+                            do
+                            (insert (format " * %s\n" w)))
+                   (insert "\n"))))
+      (delete-trailing-whitespace)
+      (goto-char (point-min))
+      (pop-to-buffer (current-buffer)))))
+
+(defun codic--request (keyword)
+  (let ((url-request-method "GET")
+        (url-request-extra-headers
+         `(("Authorization" . ,(concat "Bearer " codic-api-token))))
+        (url (format "https://api.codic.jp/v1/engine/translate.json?text=%s"
+                     (url-encode-url keyword))))
+    (url-retrieve url #'codic--render-response nil t)))
+
+(defun codic--read-keyword ()
+  (let ((default (when (use-region-p)
+                   (buffer-substring-no-properties (region-beginning) (region-end)))))
+    (read-string "Keyword: " default 'codic--history)))
+
 ;;;###autoload
 (defun codic (keyword &optional limit)
-  "Search `keyword' by Codic dictionary."
+  "Search `keyword' from Codic dictionary."
   (interactive
-   (list (read-string "Keyword: " nil 'codic--history)))
+   (list (codic--read-keyword)))
   (when (or (not (stringp keyword)) (string= keyword ""))
     (error "Error: input is empty or invalid"))
   (let ((items (codic--search keyword (or limit codic-limit))))
     (codic--view items)))
+
+;;;###autoload
+(defun codic-translate (keyword)
+  "Search `keyword' from Codic translate Web API"
+  (interactive
+   (list (codic--read-keyword)))
+  (when (or (not (stringp keyword)) (string= keyword ""))
+    (error "Error: input is empty or invalid"))
+  (unless codic-api-token
+    (error "Error: 'codic-api-token' is not set"))
+  (codic--request keyword))
 
 (provide 'codic)
 
