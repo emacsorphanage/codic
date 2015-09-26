@@ -1,4 +1,4 @@
-# codic.el [![Build Status](https://travis-ci.org/syohex/emacs-codic.svg)](https://travis-ci.org/syohex/emacs-codic)
+# codic.el [![travis badge][travis-badge]][travis-link] [![melpa badge][melpa-badge]][melpa-link] [![melpa stable badge][melpa-stable-badge]][melpa-stable-link]
 
 [Codic](http://codic.jp/) for Emacs. [Codic](http://codic.jp/) is naming dictionary
 service for Japanese programmers and system engineers. This service is useful for
@@ -16,21 +16,41 @@ This package Emacs port of [Codic.vim](https://github.com/koron/codic-vim)
 
 ### English
 
-![codic-enaligh](image/codic-english.gif)
+![codic-english](image/codic-english.gif)
 
 
 ## Installation
 
-You can install `codic.el` from [MELPA](http://melpa.milkbox.net/) with package.el.
-If you use [Cask](https://github.com/cask/cask), put following code to your Cask file.
+`codic-mode` is available on [MELPA][melpa-link] and [MELPA-STABLE][melpa-stable-link].
 
-```lisp
-(depends-on "codic")
-```
+You can install `codic` with the following command.
+
+<kbd>M-x package-install [RET] codic [RET]</kbd>
+
 
 ## Command
 
-#### `M-x codic keyword`
+#### M-x codic `(codic keyword &optional limit)`
 
-Search keyword from Codic dictionary. If `keyword` starts with English alphabet,
-`codic.el` assumes keyword is English.
+Search keyword from Codic dictionary.
+
+
+#### M-x codic-translate `(codic-translate keyword)`
+
+Search keyword by Codic translate Web API.
+
+
+## Customization
+
+#### `codic-api-token`
+
+API token of [codic.jp](https://codic.jp/docs/api). If this value is non-nil,
+`M-x codic` uses Web API instead of local dictonaries.
+
+
+[melpa-link]: https://melpa.org/#/codic
+[melpa-stable-link]: https://stable.melpa.org/#/codic
+[melpa-badge]: https://melpa.org/packages/codic-badge.svg
+[melpa-stable-badge]: https://stable.melpa.org/packages/codic-badge.svg
+[travis-badge]: https://travis-ci.org/syohex/emacs-codic.svg
+[travis-link]: https://travis-ci.org/syohex/emacs-codic
