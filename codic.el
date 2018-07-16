@@ -178,7 +178,8 @@
                (insert "\n")))
     (goto-char (point-min))
     (setq buffer-read-only t)
-    (pop-to-buffer (current-buffer))))
+    (pop-to-buffer (current-buffer))
+    (view-mode)))
 
 (defun codic--render-response (&rest _unused)
   (let* ((json (json-read-from-string
@@ -207,7 +208,8 @@
                    (insert "\n"))))
       (delete-trailing-whitespace)
       (goto-char (point-min))
-      (pop-to-buffer (current-buffer)))))
+      (pop-to-buffer (current-buffer))
+      (view-mode))))
 
 (defun codic--request (keyword)
   (let ((url-request-method "GET")
